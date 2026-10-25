@@ -1,0 +1,80 @@
+name: Build RAVENterminal APK
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build and publish prerelease APK
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: temurin
+          cache: gradle
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Build release APK
+        run: |
+          chmod +x ./gradlew
+          ./gradlew --no-daemon assembleRelease
+
+      - name: Prepare versioned APK
+        id: apk
+        shell: bash
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            VERSION="${GITHUB_REF_NAME#v}"
+            SHOULD_RELEASE=true
+          else
+            VERSION="$(grep -m1 'versionName = "' app/build.gradle.kts | cut -d '"' -f2)"
+            if git ls-remote --exit-code --tags origin "refs/tags/v${VERSION}" >/dev/null 2>&1; then
+              SHOULD_RELEASE=false
+            else
+              SHOULD_RELEASE=true
+            fi
+          fi
+          test -n "$VERSION"
+          mkdir -p dist
+          cp app/build/outputs/apk/release/app-release.apk "dist/RAVENterminal-${VERSION}.apk"
+          echo "VERSION=${VERSION}" >> "$GITHUB_ENV"
+          echo "should_release=${SHOULD_RELEASE}" >> "$GITHUB_OUTPUT"
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: RAVENterminal-${{ env.VERSION }}
+          path: dist/RAVENterminal-${{ env.VERSION }}.apk
+          if-no-files-found: error
+
+      - name: Publish GitHub prerelease
+        if: steps.apk.outputs.should_release == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_type == 'tag' && github.ref_name || format('v{0}', env.VERSION) }}
+          name: RAVENterminal ${{ env.VERSION }}
+          body: |
+            RAVENterminal ${{ env.VERSION }} — pre-release.
+
+            Add a custom environment by entering its display name and the path to its launcher script (for example, /data/local/ChrootDistro/Debian/Start.sh).
+          prerelease: true
+          target_commitish: ${{ github.sha }}
+          files: dist/RAVENterminal-${{ env.VERSION }}.apk
+          overwrite_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
