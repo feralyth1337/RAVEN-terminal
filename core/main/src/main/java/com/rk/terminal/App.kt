@@ -6,7 +6,6 @@ import android.os.StrictMode
 import com.github.anrwatchdog.ANRWatchDog
 import com.rk.libcommons.application
 import com.rk.resources.Res
-import com.rk.update.UpdateManager
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -35,8 +34,6 @@ class App : Application() {
 
         //Thread.setDefaultUncaughtExceptionHandler(CrashHandler)
         ANRWatchDog().start()
-
-        UpdateManager().onUpdate()
 
         if (BuildConfig.DEBUG){
             StrictMode.setVmPolicy(
