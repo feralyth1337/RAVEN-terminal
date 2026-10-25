@@ -1,0 +1,127 @@
+--------- beginning of crash
+10-25 15:31:10.420  7570  7570 E AndroidRuntime: FATAL EXCEPTION: main
+10-25 15:31:10.420  7570  7570 E AndroidRuntime: Process: com.raventerm.uwu, PID: 7570
+10-25 15:31:10.420  7570  7570 E AndroidRuntime: java.lang.RuntimeException: Unable to create application com.rk.terminal.App: java.io.FileNotFoundException: init-host.sh
+10-25 15:31:10.420  7570  7570 E AndroidRuntime: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:6726)
+10-25 15:31:10.420  7570  7570 E AndroidRuntime: 	at android.app.ActivityThread.access$1300(ActivityThread.java:238)
+10-25 15:31:10.420  7570  7570 E AndroidRuntime: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:1914)
+10-25 15:31:10.420  7570  7570 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:106)
+10-25 15:31:10.420  7570  7570 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:223)
+10-25 15:31:10.420  7570  7570 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:7666)
+10-25 15:31:10.420  7570  7570 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+10-25 15:31:10.420  7570  7570 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:592)
+10-25 15:31:10.420  7570  7570 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:947)
+10-25 15:31:10.420  7570  7570 E AndroidRuntime: Caused by: java.io.FileNotFoundException: init-host.sh
+10-25 15:31:10.420  7570  7570 E AndroidRuntime: 	at android.content.res.AssetManager.nativeOpenAsset(Native Method)
+10-25 15:31:10.420  7570  7570 E AndroidRuntime: 	at android.content.res.AssetManager.open(AssetManager.java:874)
+10-25 15:31:10.420  7570  7570 E AndroidRuntime: 	at android.content.res.AssetManager.open(AssetManager.java:851)
+10-25 15:31:10.420  7570  7570 E AndroidRuntime: 	at com.rk.update.UpdateManager.onUpdate(UpdateManager.kt:18)
+10-25 15:31:10.420  7570  7570 E AndroidRuntime: 	at com.rk.terminal.App.onCreate(App.kt:39)
+10-25 15:31:10.420  7570  7570 E AndroidRuntime: 	at android.app.Instrumentation.callApplicationOnCreate(Instrumentation.java:1192)
+10-25 15:31:10.420  7570  7570 E AndroidRuntime: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:6721)
+10-25 15:31:10.420  7570  7570 E AndroidRuntime: 	... 8 more
+10-25 15:31:12.297 15100 15100 E AndroidRuntime: FATAL EXCEPTION: main
+10-25 15:31:12.297 15100 15100 E AndroidRuntime: Process: com.raventerm.uwu, PID: 15100
+10-25 15:31:12.297 15100 15100 E AndroidRuntime: java.lang.RuntimeException: Unable to create application com.rk.terminal.App: java.io.FileNotFoundException: init-host.sh
+10-25 15:31:12.297 15100 15100 E AndroidRuntime: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:6726)
+10-25 15:31:12.297 15100 15100 E AndroidRuntime: 	at android.app.ActivityThread.access$1300(ActivityThread.java:238)
+10-25 15:31:12.297 15100 15100 E AndroidRuntime: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:1914)
+10-25 15:31:12.297 15100 15100 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:106)
+10-25 15:31:12.297 15100 15100 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:223)
+10-25 15:31:12.297 15100 15100 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:7666)
+10-25 15:31:12.297 15100 15100 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+10-25 15:31:12.297 15100 15100 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:592)
+10-25 15:31:12.297 15100 15100 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:947)
+10-25 15:31:12.297 15100 15100 E AndroidRuntime: Caused by: java.io.FileNotFoundException: init-host.sh
+10-25 15:31:12.297 15100 15100 E AndroidRuntime: 	at android.content.res.AssetManager.nativeOpenAsset(Native Method)
+10-25 15:31:12.297 15100 15100 E AndroidRuntime: 	at android.content.res.AssetManager.open(AssetManager.java:874)
+10-25 15:31:12.297 15100 15100 E AndroidRuntime: 	at android.content.res.AssetManager.open(AssetManager.java:851)
+10-25 15:31:12.297 15100 15100 E AndroidRuntime: 	at com.rk.update.UpdateManager.onUpdate(UpdateManager.kt:18)
+10-25 15:31:12.297 15100 15100 E AndroidRuntime: 	at com.rk.terminal.App.onCreate(App.kt:39)
+10-25 15:31:12.297 15100 15100 E AndroidRuntime: 	at android.app.Instrumentation.callApplicationOnCreate(Instrumentation.java:1192)
+10-25 15:31:12.297 15100 15100 E AndroidRuntime: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:6721)
+10-25 15:31:12.297 15100 15100 E AndroidRuntime: 	... 8 more
+10-25 15:31:14.750 15101 15101 E AndroidRuntime: FATAL EXCEPTION: main
+10-25 15:31:14.750 15101 15101 E AndroidRuntime: Process: com.raventerm.uwu, PID: 15101
+10-25 15:31:14.750 15101 15101 E AndroidRuntime: java.lang.RuntimeException: Unable to create application com.rk.terminal.App: java.io.FileNotFoundException: init-host.sh
+10-25 15:31:14.750 15101 15101 E AndroidRuntime: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:6726)
+10-25 15:31:14.750 15101 15101 E AndroidRuntime: 	at android.app.ActivityThread.access$1300(ActivityThread.java:238)
+10-25 15:31:14.750 15101 15101 E AndroidRuntime: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:1914)
+10-25 15:31:14.750 15101 15101 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:106)
+10-25 15:31:14.750 15101 15101 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:223)
+10-25 15:31:14.750 15101 15101 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:7666)
+10-25 15:31:14.750 15101 15101 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+10-25 15:31:14.750 15101 15101 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:592)
+10-25 15:31:14.750 15101 15101 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:947)
+10-25 15:31:14.750 15101 15101 E AndroidRuntime: Caused by: java.io.FileNotFoundException: init-host.sh
+10-25 15:31:14.750 15101 15101 E AndroidRuntime: 	at android.content.res.AssetManager.nativeOpenAsset(Native Method)
+10-25 15:31:14.750 15101 15101 E AndroidRuntime: 	at android.content.res.AssetManager.open(AssetManager.java:874)
+10-25 15:31:14.750 15101 15101 E AndroidRuntime: 	at android.content.res.AssetManager.open(AssetManager.java:851)
+10-25 15:31:14.750 15101 15101 E AndroidRuntime: 	at com.rk.update.UpdateManager.onUpdate(UpdateManager.kt:18)
+10-25 15:31:14.750 15101 15101 E AndroidRuntime: 	at com.rk.terminal.App.onCreate(App.kt:39)
+10-25 15:31:14.750 15101 15101 E AndroidRuntime: 	at android.app.Instrumentation.callApplicationOnCreate(Instrumentation.java:1192)
+10-25 15:31:14.750 15101 15101 E AndroidRuntime: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:6721)
+10-25 15:31:14.750 15101 15101 E AndroidRuntime: 	... 8 more
+10-25 15:31:20.583 15102 15102 E AndroidRuntime: FATAL EXCEPTION: main
+10-25 15:31:20.583 15102 15102 E AndroidRuntime: Process: com.raventerm.uwu, PID: 15102
+10-25 15:31:20.583 15102 15102 E AndroidRuntime: java.lang.RuntimeException: Unable to create application com.rk.terminal.App: java.io.FileNotFoundException: init-host.sh
+10-25 15:31:20.583 15102 15102 E AndroidRuntime: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:6726)
+10-25 15:31:20.583 15102 15102 E AndroidRuntime: 	at android.app.ActivityThread.access$1300(ActivityThread.java:238)
+10-25 15:31:20.583 15102 15102 E AndroidRuntime: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:1914)
+10-25 15:31:20.583 15102 15102 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:106)
+10-25 15:31:20.583 15102 15102 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:223)
+10-25 15:31:20.583 15102 15102 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:7666)
+10-25 15:31:20.583 15102 15102 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+10-25 15:31:20.583 15102 15102 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:592)
+10-25 15:31:20.583 15102 15102 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:947)
+10-25 15:31:20.583 15102 15102 E AndroidRuntime: Caused by: java.io.FileNotFoundException: init-host.sh
+10-25 15:31:20.583 15102 15102 E AndroidRuntime: 	at android.content.res.AssetManager.nativeOpenAsset(Native Method)
+10-25 15:31:20.583 15102 15102 E AndroidRuntime: 	at android.content.res.AssetManager.open(AssetManager.java:874)
+10-25 15:31:20.583 15102 15102 E AndroidRuntime: 	at android.content.res.AssetManager.open(AssetManager.java:851)
+10-25 15:31:20.583 15102 15102 E AndroidRuntime: 	at com.rk.update.UpdateManager.onUpdate(UpdateManager.kt:18)
+10-25 15:31:20.583 15102 15102 E AndroidRuntime: 	at com.rk.terminal.App.onCreate(App.kt:39)
+10-25 15:31:20.583 15102 15102 E AndroidRuntime: 	at android.app.Instrumentation.callApplicationOnCreate(Instrumentation.java:1192)
+10-25 15:31:20.583 15102 15102 E AndroidRuntime: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:6721)
+10-25 15:31:20.583 15102 15102 E AndroidRuntime: 	... 8 more
+10-25 15:31:22.250 15103 15103 E AndroidRuntime: FATAL EXCEPTION: main
+10-25 15:31:22.250 15103 15103 E AndroidRuntime: Process: com.raventerm.uwu, PID: 15103
+10-25 15:31:22.250 15103 15103 E AndroidRuntime: java.lang.RuntimeException: Unable to create application com.rk.terminal.App: java.io.FileNotFoundException: init-host.sh
+10-25 15:31:22.250 15103 15103 E AndroidRuntime: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:6726)
+10-25 15:31:22.250 15103 15103 E AndroidRuntime: 	at android.app.ActivityThread.access$1300(ActivityThread.java:238)
+10-25 15:31:22.250 15103 15103 E AndroidRuntime: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:1914)
+10-25 15:31:22.250 15103 15103 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:106)
+10-25 15:31:22.250 15103 15103 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:223)
+10-25 15:31:22.250 15103 15103 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:7666)
+10-25 15:31:22.250 15103 15103 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+10-25 15:31:22.250 15103 15103 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:592)
+10-25 15:31:22.250 15103 15103 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:947)
+10-25 15:31:22.250 15103 15103 E AndroidRuntime: Caused by: java.io.FileNotFoundException: init-host.sh
+10-25 15:31:22.250 15103 15103 E AndroidRuntime: 	at android.content.res.AssetManager.nativeOpenAsset(Native Method)
+10-25 15:31:22.250 15103 15103 E AndroidRuntime: 	at android.content.res.AssetManager.open(AssetManager.java:874)
+10-25 15:31:22.250 15103 15103 E AndroidRuntime: 	at android.content.res.AssetManager.open(AssetManager.java:851)
+10-25 15:31:22.250 15103 15103 E AndroidRuntime: 	at com.rk.update.UpdateManager.onUpdate(UpdateManager.kt:18)
+10-25 15:31:22.250 15103 15103 E AndroidRuntime: 	at com.rk.terminal.App.onCreate(App.kt:39)
+10-25 15:31:22.250 15103 15103 E AndroidRuntime: 	at android.app.Instrumentation.callApplicationOnCreate(Instrumentation.java:1192)
+10-25 15:31:22.250 15103 15103 E AndroidRuntime: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:6721)
+10-25 15:31:22.250 15103 15103 E AndroidRuntime: 	... 8 more
+10-25 15:31:23.913 15104 15104 E AndroidRuntime: FATAL EXCEPTION: main
+10-25 15:31:23.913 15104 15104 E AndroidRuntime: Process: com.raventerm.uwu, PID: 15104
+10-25 15:31:23.913 15104 15104 E AndroidRuntime: java.lang.RuntimeException: Unable to create application com.rk.terminal.App: java.io.FileNotFoundException: init-host.sh
+10-25 15:31:23.913 15104 15104 E AndroidRuntime: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:6726)
+10-25 15:31:23.913 15104 15104 E AndroidRuntime: 	at android.app.ActivityThread.access$1300(ActivityThread.java:238)
+10-25 15:31:23.913 15104 15104 E AndroidRuntime: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:1914)
+10-25 15:31:23.913 15104 15104 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:106)
+10-25 15:31:23.913 15104 15104 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:223)
+10-25 15:31:23.913 15104 15104 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:7666)
+10-25 15:31:23.913 15104 15104 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+10-25 15:31:23.913 15104 15104 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:592)
+10-25 15:31:23.913 15104 15104 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:947)
+10-25 15:31:23.913 15104 15104 E AndroidRuntime: Caused by: java.io.FileNotFoundException: init-host.sh
+10-25 15:31:23.913 15104 15104 E AndroidRuntime: 	at android.content.res.AssetManager.nativeOpenAsset(Native Method)
+10-25 15:31:23.913 15104 15104 E AndroidRuntime: 	at android.content.res.AssetManager.open(AssetManager.java:874)
+10-25 15:31:23.913 15104 15104 E AndroidRuntime: 	at android.content.res.AssetManager.open(AssetManager.java:851)
+10-25 15:31:23.913 15104 15104 E AndroidRuntime: 	at com.rk.update.UpdateManager.onUpdate(UpdateManager.kt:18)
+10-25 15:31:23.913 15104 15104 E AndroidRuntime: 	at com.rk.terminal.App.onCreate(App.kt:39)
+10-25 15:31:23.913 15104 15104 E AndroidRuntime: 	at android.app.Instrumentation.callApplicationOnCreate(Instrumentation.java:1192)
+10-25 15:31:23.913 15104 15104 E AndroidRuntime: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:6721)
+10-25 15:31:23.913 15104 15104 E AndroidRuntime: 	... 8 more
