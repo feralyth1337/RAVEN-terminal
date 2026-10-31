@@ -146,6 +146,8 @@ public final class RavenEnvironmentManager {
 }
 """, encoding="utf-8")
 
+# Start the terminal only after Android grants access to shared storage.
+activity = root / "app/src/main/java/com/termux/app/TermuxActivity.java"
 # Add the custom environment chooser to the existing new-session button.
 replace_once(
     activity,
@@ -184,8 +186,6 @@ replace_once(
 """,
 )
 
-# Start the terminal only after Android grants access to shared storage.
-activity = root / "app/src/main/java/com/termux/app/TermuxActivity.java"
 replace_block(
     activity,
     "                TermuxInstaller.setupBootstrapIfNeeded(TermuxActivity.this, () -> {",
