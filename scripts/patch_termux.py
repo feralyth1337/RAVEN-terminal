@@ -2,6 +2,7 @@
 """Apply the small RAVEN-specific patch set to the pinned Termux app source."""
 
 from pathlib import Path
+import shutil
 import sys
 
 
@@ -164,6 +165,33 @@ if bootstrap_task_start >= 0:
     app_gradle.write_text(gradle_source, encoding="utf-8")
 elif "downloadBootstrap(" in gradle_source:
     raise RuntimeError("app/build.gradle: unexpected bootstrap task layout")
+
+# Remove the obsolete native bootstrap library from the Android build.
+replace_once(
+    app_gradle,
+    """        externalNativeBuild {
+            ndkBuild {
+                cFlags "-std=c11", "-Wall", "-Wextra", "-Werror", "-Os", "-fno-stack-protector", "-Wl,--gc-sections"
+            }
+        }
+
+""",
+    "",
+)
+replace_once(
+    app_gradle,
+    """    externalNativeBuild {
+        ndkBuild {
+            path "src/main/cpp/Android.mk"
+        }
+    }
+
+""",
+    "",
+)
+cpp_directory = root / "app/src/main/cpp"
+if cpp_directory.exists():
+    shutil.rmtree(cpp_directory)
 
 # Keep XML package/app labels in sync with the Android manifest and constants.
 app_strings = root / "app/src/main/res/values/strings.xml"
