@@ -176,7 +176,7 @@ replace_once(
         }
 
 """,
-    "",
+    "        // RAVEN does not build the Termux bootstrap native library.\n",
 )
 replace_once(
     app_gradle,
@@ -187,7 +187,7 @@ replace_once(
     }
 
 """,
-    "",
+    "    // RAVEN does not build the Termux bootstrap native library.\n",
 )
 cpp_directory = root / "app/src/main/cpp"
 if cpp_directory.exists():
