@@ -102,6 +102,11 @@ public class TermuxShellEnvironment extends AndroidShellEnvironment {
         super();
     }
 
+    /** Legacy callback retained for upstream SystemEventReceiver; RAVEN has no termux.env file. */
+    public static void writeEnvironmentToFile(@NonNull Context context) {
+        // The Android system shell consumes the process environment directly.
+    }
+
     @NonNull
     @Override
     public HashMap<String, String> getEnvironment(@NonNull Context context, boolean isFailSafe) {
