@@ -1,3 +1,0 @@
-[submodule "upstream/termux-app"]
-	path = upstream/termux-app
-	url = https://github.com/termux/termux-app.git

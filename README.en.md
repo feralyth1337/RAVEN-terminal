@@ -71,17 +71,19 @@ RAVEN does not download, install, or configure proot/chroot environments for you
 
 ### Requirements
 
-- Git with submodule support.
+- Git.
 - Python 3.
 - JDK 17.
 - Android SDK and the SDK components required by the pinned Termux Gradle project.
 
 ### Local build
 
-Clone the repository, including its upstream submodule:
+Clone the repository normally. The pinned Termux source is already included in **upstream/termux-app** inside this repository; no submodule initialization is required.
 
-    git clone --recurse-submodules https://github.com/feralyth1337/RAVEN-terminal.git
+    git clone https://github.com/feralyth1337/RAVEN-terminal.git
     cd RAVEN-terminal
+
+The repository contains the complete upstream Termux snapshot at commit **8629e632fcb95da272221be327db653fb24befe9**.
 
 Apply the RAVEN patch to the pinned Termux source and build a universal debug APK:
 
@@ -111,7 +113,7 @@ Original materials and files created for RAVEN are distributed under the MIT Lic
 
 This **does not mean** that all Termux source code or the resulting application have been relicensed under MIT. RAVEN is based on a pinned version of [termux/termux-app](https://github.com/termux/termux-app), whose upstream application is distributed under **GPL-3.0-only**. Terminal Emulator, Terminal View, and parts of **termux-shared** have their own licenses and exceptions. Those terms remain in effect.
 
-Further details, including the pinned upstream commit and the locations of component license files, are provided in [NOTICE.md](NOTICE.md) and the license files in the upstream submodule at **upstream/termux-app**.
+Further details, including the pinned upstream commit and the locations of component license files, are provided in [NOTICE.md](NOTICE.md) and the license files in the upstream source tree at **upstream/termux-app**.
 
 ## Links
 

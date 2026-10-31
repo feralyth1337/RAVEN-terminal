@@ -71,17 +71,19 @@ RAVEN не скачивает, не устанавливает и не наст�
 
 ### Требования
 
-- Git с поддержкой submodules.
+- Git.
 - Python 3.
 - JDK 17.
 - Android SDK и компоненты SDK, необходимые закреплённой версией Gradle-проекта Termux.
 
 ### Локальная сборка
 
-Клонируйте репозиторий вместе с upstream submodule:
+Клонируйте репозиторий обычным способом. Закреплённые исходники Termux уже находятся в **upstream/termux-app** внутри репозитория — отдельная инициализация submodule не требуется.
 
-    git clone --recurse-submodules https://github.com/feralyth1337/RAVEN-terminal.git
+    git clone https://github.com/feralyth1337/RAVEN-terminal.git
     cd RAVEN-terminal
+
+В репозитории хранится полный upstream snapshot Termux commit **8629e632fcb95da272221be327db653fb24befe9**.
 
 Примените патч RAVEN к закреплённым исходникам Termux и соберите universal debug APK:
 
@@ -111,7 +113,7 @@ Workflow в **.github/workflows/android.yml** собирает APK автома�
 
 Это **не означает**, что весь исходный код Termux или собранное на его основе приложение переведены на MIT. RAVEN основан на закреплённой версии [termux/termux-app](https://github.com/termux/termux-app), исходное приложение которого распространяется под **GPL-3.0-only**. Terminal Emulator, Terminal View и отдельные части **termux-shared** имеют собственные лицензии и исключения. Их условия сохраняются.
 
-Подробности, ссылки на исходный upstream commit и расположение лицензий компонентов приведены в [NOTICE.md](NOTICE.md) и в license-файлах upstream submodule **upstream/termux-app**.
+Подробности, ссылки на исходный upstream commit и расположение лицензий компонентов приведены в [NOTICE.md](NOTICE.md) и в license-файлах upstream-исходников **upstream/termux-app**.
 
 ## Ссылки
 

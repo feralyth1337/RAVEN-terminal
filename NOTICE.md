@@ -9,6 +9,7 @@ Original RAVEN-authored project materials are licensed under the MIT License, wi
 RAVEN is derived from [termux/termux-app](https://github.com/termux/termux-app).
 
 - Pinned upstream repository commit: **8629e632fcb95da272221be327db653fb24befe9**
+- The complete source snapshot is stored directly in this repository at **upstream/termux-app** (not as a Git submodule).
 - The upstream Termux application is released under **GPL-3.0-only**.
 - The Terminal Emulator and Terminal View components retain their upstream license exceptions.
 - The **termux-shared** library contains multiple license terms and exceptions; consult its upstream license file.
