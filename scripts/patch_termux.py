@@ -146,6 +146,44 @@ public final class RavenEnvironmentManager {
 }
 """, encoding="utf-8")
 
+# Add the custom environment chooser to the existing new-session button.
+replace_once(
+    activity,
+    "import java.util.Arrays;\n",
+    "import java.util.Arrays;\nimport java.util.List;\n",
+)
+replace_once(
+    activity,
+    "        newSessionButton.setOnClickListener(v -> mTermuxTerminalSessionActivityClient.addNewSession(false, null));",
+    "        newSessionButton.setOnClickListener(v -> showNewSessionDialog());",
+)
+replace_once(
+    activity,
+    "    private void setToggleKeyboardView() {\n",
+    """    private void showNewSessionDialog() {
+        List<RavenEnvironmentManager.Environment> environments = RavenEnvironmentManager.getEnvironments(this);
+        CharSequence[] choices = new CharSequence[environments.size() + 1];
+        choices[0] = getString(R.string.raven_android_shell);
+        for (int i = 0; i < environments.size(); i++)
+            choices[i + 1] = environments.get(i).name;
+
+        new AlertDialog.Builder(this)
+            .setTitle(R.string.raven_select_environment)
+            .setItems(choices, (dialog, which) -> {
+                if (which == 0) {
+                    mTermuxTerminalSessionActivityClient.addNewSession(false, null);
+                } else {
+                    RavenEnvironmentManager.Environment environment = environments.get(which - 1);
+                    mTermuxTerminalSessionActivityClient.addNewEnvironmentSession(environment.name, environment.path);
+                }
+            })
+            .show();
+    }
+
+    private void setToggleKeyboardView() {
+""",
+)
+
 # Start the terminal only after Android grants access to shared storage.
 activity = root / "app/src/main/java/com/termux/app/TermuxActivity.java"
 replace_block(
@@ -185,6 +223,43 @@ replace_once(
     session_client,
     "            TermuxSession newTermuxSession = service.createTermuxSession(null, null, null, workingDirectory, isFailSafe, sessionName);",
     '            TermuxSession newTermuxSession = service.createTermuxSession("/system/bin/sh", null, null, workingDirectory, isFailSafe, sessionName);',
+)
+
+# Create selected custom environments as su-backed PTY sessions.
+replace_once(
+    session_client,
+    "            mActivity.getDrawer().closeDrawers();\n        }\n    }\n\n    public void setCurrentStoredSession()",
+    """            mActivity.getDrawer().closeDrawers();
+        }
+    }
+
+    /** Launch a user-configured proot/chroot launcher through the device's su binary. */
+    public void addNewEnvironmentSession(String environmentName, String launcherPath) {
+        TermuxService service = mActivity.getTermuxService();
+        if (service == null) return;
+
+        if (service.getTermuxSessionsSize() >= MAX_SESSIONS) {
+            new AlertDialog.Builder(mActivity).setTitle(R.string.title_max_terminals_reached)
+                .setMessage(R.string.msg_max_terminals_reached)
+                .setPositiveButton(android.R.string.ok, null).show();
+            return;
+        }
+
+        // The launcher itself changes into the guest root. Keep the host-side PTY cwd valid.
+        String command = "exec " + quoteForShell(launcherPath);
+        TermuxSession newTermuxSession = service.createTermuxSession(
+            "su", new String[]{"-c", command}, null, "/storage/emulated/0", false, environmentName);
+        if (newTermuxSession == null) return;
+
+        setCurrentSession(newTermuxSession.getTerminalSession());
+        mActivity.getDrawer().closeDrawers();
+    }
+
+    private static String quoteForShell(String value) {
+        return "'" + value.replace("'", "'\\''") + "'";
+    }
+
+    public void setCurrentStoredSession()""",
 )
 
 # The Termux session adapter now exposes only Android's shell environment.
