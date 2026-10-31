@@ -480,19 +480,10 @@ replace_once(
 )
 
 # Remove the upstream Termux-only About and Donate settings entries.
-replace_once(
+replace_block(
     root_preferences,
-    """    <Preference
-        app:key="about"
-        app:title="@string/about_preference_title"
-        app:persistent="false"/>
-    <!-- app:layout="@layout/preference_markdown_text" -->
-
-    <Preference
-        app:key="donate"
-        app:title="@string/donate_preference_title"
-        app:persistent="false"
-        app:isPreferenceVisible="false"/>""",
+    '    <Preference\n        app:key="about"\n',
+    '        app:isPreferenceVisible="false"/>',
     "",
 )
 
