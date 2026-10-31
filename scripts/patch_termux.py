@@ -65,6 +65,87 @@ root = Path(sys.argv[1]).resolve()
 if not (root / "app/build.gradle").is_file():
     raise SystemExit(f"not a Termux app source tree: {root}")
 
+# Persist user-defined root launcher profiles.
+environment_manager = root / "app/src/main/java/com/termux/app/RavenEnvironmentManager.java"
+environment_manager.write_text("""package com.termux.app;
+
+import android.content.Context;
+import android.content.SharedPreferences;
+import androidx.annotation.NonNull;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import java.util.ArrayList;
+import java.util.List;
+
+public final class RavenEnvironmentManager {
+    private static final String PREFS_NAME = "raven_terminal";
+    private static final String KEY_ENVIRONMENTS = "custom_environments";
+
+    private RavenEnvironmentManager() {
+    }
+
+    public static final class Environment {
+        public final String name;
+        public final String path;
+
+        Environment(String name, String path) {
+            this.name = name;
+            this.path = path;
+        }
+    }
+
+    @NonNull
+    public static List<Environment> getEnvironments(@NonNull Context context) {
+        SharedPreferences preferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        String serialized = preferences.getString(KEY_ENVIRONMENTS, "[]");
+        List<Environment> environments = new ArrayList<>();
+        try {
+            JSONArray array = new JSONArray(serialized);
+            for (int i = 0; i < array.length(); i++) {
+                JSONObject item = array.optJSONObject(i);
+                if (item == null) continue;
+                String name = item.optString("name", "").trim();
+                String path = item.optString("path", "").trim();
+                if (!name.isEmpty() && !path.isEmpty())
+                    environments.add(new Environment(name, path));
+            }
+        } catch (Exception ignored) {
+            // Ignore malformed preferences and keep the built-in shell available.
+        }
+        return environments;
+    }
+
+    public static boolean addEnvironment(@NonNull Context context, String name, String path) {
+        String cleanName = name == null ? "" : name.trim();
+        String cleanPath = path == null ? "" : path.trim();
+        if (cleanName.isEmpty() || cleanPath.isEmpty() || cleanPath.charAt(0) != '/'
+            || cleanPath.indexOf((char) 10) >= 0 || cleanPath.indexOf((char) 13) >= 0)
+            return false;
+
+        JSONArray updated = new JSONArray();
+        try {
+            for (Environment environment : getEnvironments(context)) {
+                if (environment.name.equalsIgnoreCase(cleanName)) continue;
+                JSONObject item = new JSONObject();
+                item.put("name", environment.name);
+                item.put("path", environment.path);
+                updated.put(item);
+            }
+            JSONObject newItem = new JSONObject();
+            newItem.put("name", cleanName);
+            newItem.put("path", cleanPath);
+            updated.put(newItem);
+        } catch (Exception e) {
+            return false;
+        }
+
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit().putString(KEY_ENVIRONMENTS, updated.toString()).apply();
+        return true;
+    }
+}
+""", encoding="utf-8")
+
 # Start the terminal only after Android grants access to shared storage.
 activity = root / "app/src/main/java/com/termux/app/TermuxActivity.java"
 replace_block(
