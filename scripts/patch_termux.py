@@ -256,7 +256,9 @@ replace_once(
     }
 
     private static String quoteForShell(String value) {
-        return "'" + value.replace("'", "'\\''") + "'";
+        String singleQuote = String.valueOf((char) 39);
+        String escapedQuote = singleQuote + (char) 92 + singleQuote + singleQuote;
+        return singleQuote + value.replace(singleQuote, escapedQuote) + singleQuote;
     }
 
     public void setCurrentStoredSession()""",
