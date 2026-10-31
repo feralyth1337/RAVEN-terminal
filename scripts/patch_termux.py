@@ -87,17 +87,13 @@ public final class RavenEnvironmentManager {
     public static final class Environment {
         public final String name;
         public final String path;
-
-        Environment(String name, String path) {
-            this.name = name;
-            this.path = path;
-        }
+        Environment(String name, String path) { this.name = name; this.path = path; }
     }
 
     @NonNull
     public static List<Environment> getEnvironments(@NonNull Context context) {
-        SharedPreferences preferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        String serialized = preferences.getString(KEY_ENVIRONMENTS, "[]");
+        String serialized = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getString(KEY_ENVIRONMENTS, "[]");
         List<Environment> environments = new ArrayList<>();
         try {
             JSONArray array = new JSONArray(serialized);
@@ -106,8 +102,7 @@ public final class RavenEnvironmentManager {
                 if (item == null) continue;
                 String name = item.optString("name", "").trim();
                 String path = item.optString("path", "").trim();
-                if (!name.isEmpty() && !path.isEmpty())
-                    environments.add(new Environment(name, path));
+                if (!name.isEmpty() && !path.isEmpty()) environments.add(new Environment(name, path));
             }
         } catch (Exception ignored) {
             // Ignore malformed preferences and keep the built-in shell available.
@@ -116,25 +111,36 @@ public final class RavenEnvironmentManager {
     }
 
     public static boolean addEnvironment(@NonNull Context context, String name, String path) {
+        return saveEnvironment(context, null, name, path);
+    }
+
+    public static boolean updateEnvironment(@NonNull Context context, String oldName, String name, String path) {
+        if (oldName == null || oldName.trim().isEmpty()) return false;
+        return saveEnvironment(context, oldName, name, path);
+    }
+
+    private static boolean saveEnvironment(@NonNull Context context, String replacedName, String name, String path) {
         String cleanName = name == null ? "" : name.trim();
         String cleanPath = path == null ? "" : path.trim();
         if (cleanName.isEmpty() || cleanPath.isEmpty() || cleanPath.charAt(0) != '/'
-            || cleanPath.indexOf((char) 10) >= 0 || cleanPath.indexOf((char) 13) >= 0)
-            return false;
+            || cleanName.indexOf((char) 10) >= 0 || cleanName.indexOf((char) 13) >= 0
+            || cleanPath.indexOf((char) 10) >= 0 || cleanPath.indexOf((char) 13) >= 0) return false;
 
         JSONArray updated = new JSONArray();
         try {
             for (Environment environment : getEnvironments(context)) {
-                if (environment.name.equalsIgnoreCase(cleanName)) continue;
+                boolean replacing = replacedName != null && environment.name.equalsIgnoreCase(replacedName);
+                boolean collision = environment.name.equalsIgnoreCase(cleanName);
+                if (replacing || collision) continue;
                 JSONObject item = new JSONObject();
                 item.put("name", environment.name);
                 item.put("path", environment.path);
                 updated.put(item);
             }
-            JSONObject newItem = new JSONObject();
-            newItem.put("name", cleanName);
-            newItem.put("path", cleanPath);
-            updated.put(newItem);
+            JSONObject item = new JSONObject();
+            item.put("name", cleanName);
+            item.put("path", cleanPath);
+            updated.put(item);
         } catch (Exception e) {
             return false;
         }
@@ -143,8 +149,31 @@ public final class RavenEnvironmentManager {
             .edit().putString(KEY_ENVIRONMENTS, updated.toString()).apply();
         return true;
     }
-}
-""", encoding="utf-8")
+
+    public static boolean removeEnvironment(@NonNull Context context, String name) {
+        if (name == null || name.trim().isEmpty()) return false;
+        JSONArray updated = new JSONArray();
+        boolean removed = false;
+        try {
+            for (Environment environment : getEnvironments(context)) {
+                if (environment.name.equalsIgnoreCase(name.trim())) {
+                    removed = true;
+                    continue;
+                }
+                JSONObject item = new JSONObject();
+                item.put("name", environment.name);
+                item.put("path", environment.path);
+                updated.put(item);
+            }
+        } catch (Exception e) {
+            return false;
+        }
+        if (!removed) return false;
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit().putString(KEY_ENVIRONMENTS, updated.toString()).apply();
+        return true;
+    }
+}""", encoding="utf-8")
 
 # Start the terminal only after Android grants access to shared storage.
 activity = root / "app/src/main/java/com/termux/app/TermuxActivity.java"
@@ -276,6 +305,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
+import androidx.preference.ListPreference;
 """,
 )
 replace_once(
@@ -292,18 +322,85 @@ replace_once(
 )
 replace_once(
     settings_activity,
-    "        private void configureTermuxAPIPreference(@NonNull Context context) {\n",
+    "        private void configureTermuxAPIPreference(@NonNull Context context) {",
     """        private void configureRavenEnvironmentPreference(@NonNull Context context) {
-            Preference preference = findPreference("raven_add_environment");
-            if (preference != null) {
-                preference.setOnPreferenceClickListener(clicked -> {
+            Preference addPreference = findPreference("raven_add_environment");
+            if (addPreference != null) {
+                addPreference.setOnPreferenceClickListener(clicked -> {
                     showAddRavenEnvironmentDialog(context);
                     return true;
                 });
             }
+
+            ListPreference managePreference = findPreference("raven_manage_environments");
+            if (managePreference != null) {
+                managePreference.setPersistent(false);
+                managePreference.setDialogTitle(R.string.raven_manage_environments_title);
+                managePreference.setOnPreferenceChangeListener((preference, newValue) -> {
+                    showManageRavenEnvironmentDialog(context, String.valueOf(newValue));
+                    return false;
+                });
+                refreshRavenEnvironmentPreference(context);
+            }
+        }
+
+        private void refreshRavenEnvironmentPreference(@NonNull Context context) {
+            ListPreference preference = findPreference("raven_manage_environments");
+            if (preference == null) return;
+            java.util.List<RavenEnvironmentManager.Environment> environments =
+                RavenEnvironmentManager.getEnvironments(context);
+            CharSequence[] entries = new CharSequence[environments.size()];
+            CharSequence[] values = new CharSequence[environments.size()];
+            for (int i = 0; i < environments.size(); i++) {
+                entries[i] = environments.get(i).name;
+                values[i] = environments.get(i).name;
+            }
+            preference.setEntries(entries);
+            preference.setEntryValues(values);
+            preference.setEnabled(!environments.isEmpty());
+            preference.setSummary(environments.isEmpty()
+                ? R.string.raven_no_environments_summary : R.string.raven_manage_environments_summary);
+        }
+
+        private void showManageRavenEnvironmentDialog(@NonNull Context context, String environmentName) {
+            RavenEnvironmentManager.Environment selected = null;
+            for (RavenEnvironmentManager.Environment item : RavenEnvironmentManager.getEnvironments(context)) {
+                if (item.name.equalsIgnoreCase(environmentName)) { selected = item; break; }
+            }
+            if (selected == null) {
+                refreshRavenEnvironmentPreference(context);
+                return;
+            }
+            RavenEnvironmentManager.Environment environment = selected;
+            CharSequence[] actions = new CharSequence[] {
+                context.getString(R.string.raven_edit_environment),
+                context.getString(R.string.raven_delete_environment)
+            };
+            new AlertDialog.Builder(context).setTitle(environment.name)
+                .setItems(actions, (dialog, which) -> {
+                    if (which == 0) {
+                        showRavenEnvironmentEditorDialog(context, environment);
+                    } else {
+                        new AlertDialog.Builder(context)
+                            .setTitle(R.string.raven_delete_environment)
+                            .setMessage(context.getString(R.string.raven_delete_environment_confirmation, environment.name))
+                            .setNegativeButton(android.R.string.cancel, null)
+                            .setPositiveButton(R.string.raven_delete_environment, (confirm, result) -> {
+                                if (RavenEnvironmentManager.removeEnvironment(context, environment.name)) {
+                                    Toast.makeText(context, R.string.raven_environment_deleted, Toast.LENGTH_SHORT).show();
+                                }
+                                refreshRavenEnvironmentPreference(context);
+                            }).show();
+                    }
+                }).show();
         }
 
         private void showAddRavenEnvironmentDialog(@NonNull Context context) {
+            showRavenEnvironmentEditorDialog(context, null);
+        }
+
+        private void showRavenEnvironmentEditorDialog(
+            @NonNull Context context, RavenEnvironmentManager.Environment existing) {
             LinearLayout fields = new LinearLayout(context);
             fields.setOrientation(LinearLayout.VERTICAL);
             int padding = (int) (20 * context.getResources().getDisplayMetrics().density + 0.5f);
@@ -322,8 +419,14 @@ replace_once(
             fields.addView(pathInput, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
+            boolean editing = existing != null;
+            if (editing) {
+                nameInput.setText(existing.name);
+                pathInput.setText(existing.path);
+            }
+
             AlertDialog dialog = new AlertDialog.Builder(context)
-                .setTitle(R.string.raven_add_environment_title)
+                .setTitle(editing ? R.string.raven_edit_environment_title : R.string.raven_add_environment_title)
                 .setView(fields)
                 .setNegativeButton(android.R.string.cancel, null)
                 .setPositiveButton(R.string.raven_save_environment, null)
@@ -335,18 +438,23 @@ replace_once(
                     nameInput.setError(context.getString(R.string.raven_environment_name_required));
                     return;
                 }
-                if (!RavenEnvironmentManager.addEnvironment(context, name, path)) {
+                boolean saved = editing
+                    ? RavenEnvironmentManager.updateEnvironment(context, existing.name, name, path)
+                    : RavenEnvironmentManager.addEnvironment(context, name, path);
+                if (!saved) {
                     pathInput.setError(context.getString(R.string.raven_environment_path_required));
                     return;
                 }
-                Toast.makeText(context, R.string.raven_environment_saved, Toast.LENGTH_SHORT).show();
+                Toast.makeText(context,
+                    editing ? R.string.raven_environment_updated : R.string.raven_environment_saved,
+                    Toast.LENGTH_SHORT).show();
+                refreshRavenEnvironmentPreference(context);
                 dialog.dismiss();
             }));
             dialog.show();
         }
 
-        private void configureTermuxAPIPreference(@NonNull Context context) {
-""",
+        private void configureTermuxAPIPreference(@NonNull Context context) {""",
 )
 
 # Expose the "Add custom environment" action in the existing Settings screen.
@@ -360,9 +468,32 @@ replace_once(
         app:summary="@string/raven_add_environment_summary"
         app:persistent="false"/>
 
+    <ListPreference
+        app:key="raven_manage_environments"
+        app:title="@string/raven_manage_environments_title"
+        app:summary="@string/raven_no_environments_summary"
+        app:persistent="false"/>
+
     <Preference
         app:key="about"
 """,
+)
+
+# Remove the upstream Termux-only About and Donate settings entries.
+replace_once(
+    root_preferences,
+    """    <Preference
+        app:key="about"
+        app:title="@string/about_preference_title"
+        app:persistent="false"/>
+    <!-- app:layout="@layout/preference_markdown_text" -->
+
+    <Preference
+        app:key="donate"
+        app:title="@string/donate_preference_title"
+        app:persistent="false"
+        app:isPreferenceVisible="false"/>""",
+    "",
 )
 
 # Add labels for the settings form and the new-session environment picker.
@@ -375,12 +506,21 @@ replace_once(
     <string name="raven_android_shell">Android system shell</string>
     <string name="raven_add_environment_title">Add custom environment</string>
     <string name="raven_add_environment_summary">Register a launcher for your proot or chroot environment</string>
-    <string name="raven_environment_name_hint">Environment name (for example, Debian)</string>
-    <string name="raven_environment_launcher_hint">Launcher path (for example, /data/local/start-debian.sh)</string>
+    <string name="raven_manage_environments_title">Manage custom environments</string>
+    <string name="raven_manage_environments_summary">Select an environment to edit or remove it</string>
+    <string name="raven_no_environments_summary">No custom environments added</string>
+    <string name="raven_edit_environment_title">Edit custom environment</string>
+    <string name="raven_edit_environment">Edit</string>
+    <string name="raven_delete_environment">Delete</string>
+    <string name="raven_delete_environment_confirmation">Remove the saved launcher for %1$s? The launcher script and environment files will not be deleted.</string>
+    <string name="raven_environment_name_hint">Environment name</string>
+    <string name="raven_environment_launcher_hint">Absolute launcher path</string>
     <string name="raven_environment_name_required">Enter an environment name</string>
     <string name="raven_environment_path_required">Enter an absolute launcher path</string>
     <string name="raven_save_environment">Save</string>
     <string name="raven_environment_saved">Environment saved</string>
+    <string name="raven_environment_updated">Environment updated</string>
+    <string name="raven_environment_deleted">Environment removed</string>
 """,
 )
 
