@@ -4,6 +4,12 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      release_version:
+        description: "Stable release version (for example 0.1.1). Leave empty to publish a pre-release."
+        required: false
+        type: string
+        default: ""
 
 permissions:
   contents: write
@@ -11,6 +17,9 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      RAVEN_VERSION: ${{ (github.event_name == 'workflow_dispatch' && inputs.release_version != '' && inputs.release_version) || (github.event_name == 'push' && contains(github.event.head_commit.message, '[release]') && '0.1.0') || format('0.1.0-pre.{0}', github.run_number) }}
+      RAVEN_IS_PRERELEASE: ${{ !((github.event_name == 'workflow_dispatch' && inputs.release_version != '') || (github.event_name == 'push' && contains(github.event.head_commit.message, '[release]'))) }}
     steps:
       - name: Checkout RAVEN and pinned Termux source
         uses: actions/checkout@v4
@@ -31,8 +40,8 @@ jobs:
       - name: Build universal debug APK
         working-directory: upstream/termux-app
         env:
-          TERMUX_APP_VERSION_NAME: 0.1.0-pre.${{ github.run_number }}
-          TERMUX_APK_VERSION_TAG: raven-0.1.0-pre.${{ github.run_number }}
+          TERMUX_APP_VERSION_NAME: ${{ env.RAVEN_VERSION }}
+          TERMUX_APK_VERSION_TAG: ${{ format('raven-{0}', env.RAVEN_VERSION) }}
           TERMUX_PACKAGE_VARIANT: apt-android-7
           TERMUX_SPLIT_APKS_FOR_DEBUG_BUILDS: "0"
         run: |
@@ -41,28 +50,36 @@ jobs:
           mkdir -p "$GITHUB_WORKSPACE/dist"
           APK="$(find app/build/outputs/apk/debug -maxdepth 1 -type f -name '*universal.apk' | head -n 1)"
           test -n "$APK"
-          cp "$APK" "$GITHUB_WORKSPACE/dist/RAVEN-terminal-0.1.0-pre.${GITHUB_RUN_NUMBER}.apk"
+          cp "$APK" "$GITHUB_WORKSPACE/dist/RAVEN-terminal-${RAVEN_VERSION}.apk"
           cd "$GITHUB_WORKSPACE/dist"
           sha256sum ./*.apk > SHA256SUMS.txt
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: RAVEN-terminal-pre-release-${{ github.run_number }}
+          name: RAVEN-terminal-${{ env.RAVEN_VERSION }}
           path: dist/*
           if-no-files-found: error
           retention-days: 30
 
-      - name: Publish GitHub pre-release
+      - name: Publish GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          VERSION="0.1.0-pre.${GITHUB_RUN_NUMBER}"
+          VERSION="$RAVEN_VERSION"
           TAG="v${VERSION}"
           TITLE="RAVEN Terminal ${VERSION}"
-          NOTES="First RAVEN pre-release. Android system shell (/system/bin/sh), HOME=/storage/emulated/0. No Termux bootstrap, apt or bundled Linux userspace."
+          NOTES="RAVEN Terminal ${VERSION}.
+
+          - Android system shell: /system/bin/sh
+          - HOME and initial working directory: /storage/emulated/0
+          - No Termux bootstrap, apt, PREFIX or bundled Linux userspace
+          - User-configured launcher profiles for custom environments"
+
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release upload "$TAG" dist/*.apk dist/SHA256SUMS.txt --clobber
-          else
+          elif [ "$RAVEN_IS_PRERELEASE" = "true" ]; then
             gh release create "$TAG" dist/*.apk dist/SHA256SUMS.txt --prerelease --title "$TITLE" --notes "$NOTES"
+          else
+            gh release create "$TAG" dist/*.apk dist/SHA256SUMS.txt --title "$TITLE" --notes "$NOTES"
           fi
