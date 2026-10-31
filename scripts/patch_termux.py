@@ -31,6 +31,33 @@ def replace_block(path: Path, start_marker: str, end_marker: str, replacement: s
     path.write_text(source, encoding="utf-8")
 
 
+def remove_gradle_blocks(path: Path, block_name: str) -> None:
+    """Remove complete Gradle brace blocks without depending on whitespace."""
+    source = path.read_text(encoding="utf-8")
+    while block_name in source:
+        start = source.index(block_name)
+        line_start = source.rfind("\n", 0, start) + 1
+        opening = source.find("{", start)
+        if opening < 0:
+            raise RuntimeError(f"{path}: opening brace not found for {block_name}")
+        depth = 0
+        end = None
+        for index in range(opening, len(source)):
+            if source[index] == "{":
+                depth += 1
+            elif source[index] == "}":
+                depth -= 1
+                if depth == 0:
+                    end = index + 1
+                    break
+        if end is None:
+            raise RuntimeError(f"{path}: unmatched Gradle block {block_name}")
+        source = source[:line_start] + source[end:]
+    if "src/main/cpp/Android.mk" in source:
+        raise RuntimeError(f"{path}: stale Termux bootstrap NDK path remains")
+    path.write_text(source, encoding="utf-8")
+
+
 if len(sys.argv) != 2:
     raise SystemExit("usage: patch_termux.py PATH_TO_TERMUX_APP")
 
@@ -167,28 +194,7 @@ elif "downloadBootstrap(" in gradle_source:
     raise RuntimeError("app/build.gradle: unexpected bootstrap task layout")
 
 # Remove the obsolete native bootstrap library from the Android build.
-replace_once(
-    app_gradle,
-    """        externalNativeBuild {
-            ndkBuild {
-                cFlags "-std=c11", "-Wall", "-Wextra", "-Werror", "-Os", "-fno-stack-protector", "-Wl,--gc-sections"
-            }
-        }
-
-""",
-    "        // RAVEN does not build the Termux bootstrap native library.\n",
-)
-replace_once(
-    app_gradle,
-    """    externalNativeBuild {
-        ndkBuild {
-            path "src/main/cpp/Android.mk"
-        }
-    }
-
-""",
-    "    // RAVEN does not build the Termux bootstrap native library.\n",
-)
+remove_gradle_blocks(app_gradle, "externalNativeBuild")
 cpp_directory = root / "app/src/main/cpp"
 if cpp_directory.exists():
     shutil.rmtree(cpp_directory)
