@@ -262,6 +262,126 @@ replace_once(
     public void setCurrentStoredSession()""",
 )
 
+# Add a settings entry and dialog for registering launcher name/path pairs.
+settings_activity = root / "app/src/main/java/com/termux/app/activities/SettingsActivity.java"
+replace_once(
+    settings_activity,
+    "import android.content.Context;\n",
+    """import android.app.AlertDialog;
+import android.content.Context;
+import android.text.InputType;
+import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.Toast;
+""",
+)
+replace_once(
+    settings_activity,
+    "import com.termux.R;\n",
+    "import com.termux.R;\nimport com.termux.app.RavenEnvironmentManager;\n",
+)
+replace_once(
+    settings_activity,
+    "            setPreferencesFromResource(R.xml.root_preferences, rootKey);\n",
+    """            setPreferencesFromResource(R.xml.root_preferences, rootKey);
+            configureRavenEnvironmentPreference(context);
+""",
+)
+replace_once(
+    settings_activity,
+    "        private void configureTermuxAPIPreference(@NonNull Context context) {\n",
+    """        private void configureRavenEnvironmentPreference(@NonNull Context context) {
+            Preference preference = findPreference("raven_add_environment");
+            if (preference != null) {
+                preference.setOnPreferenceClickListener(clicked -> {
+                    showAddRavenEnvironmentDialog(context);
+                    return true;
+                });
+            }
+        }
+
+        private void showAddRavenEnvironmentDialog(@NonNull Context context) {
+            LinearLayout fields = new LinearLayout(context);
+            fields.setOrientation(LinearLayout.VERTICAL);
+            int padding = (int) (20 * context.getResources().getDisplayMetrics().density + 0.5f);
+            fields.setPadding(padding, padding / 2, padding, 0);
+
+            EditText nameInput = new EditText(context);
+            nameInput.setSingleLine(true);
+            nameInput.setHint(R.string.raven_environment_name_hint);
+            fields.addView(nameInput, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+            EditText pathInput = new EditText(context);
+            pathInput.setSingleLine(true);
+            pathInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+            pathInput.setHint(R.string.raven_environment_launcher_hint);
+            fields.addView(pathInput, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+            AlertDialog dialog = new AlertDialog.Builder(context)
+                .setTitle(R.string.raven_add_environment_title)
+                .setView(fields)
+                .setNegativeButton(android.R.string.cancel, null)
+                .setPositiveButton(R.string.raven_save_environment, null)
+                .create();
+            dialog.setOnShowListener(ignored -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(view -> {
+                String name = nameInput.getText().toString().trim();
+                String path = pathInput.getText().toString().trim();
+                if (name.isEmpty()) {
+                    nameInput.setError(context.getString(R.string.raven_environment_name_required));
+                    return;
+                }
+                if (!RavenEnvironmentManager.addEnvironment(context, name, path)) {
+                    pathInput.setError(context.getString(R.string.raven_environment_path_required));
+                    return;
+                }
+                Toast.makeText(context, R.string.raven_environment_saved, Toast.LENGTH_SHORT).show();
+                dialog.dismiss();
+            }));
+            dialog.show();
+        }
+
+        private void configureTermuxAPIPreference(@NonNull Context context) {
+""",
+)
+
+# Expose the "Add custom environment" action in the existing Settings screen.
+root_preferences = root / "app/src/main/res/xml/root_preferences.xml"
+replace_once(
+    root_preferences,
+    '    <Preference\n        app:key="about"\n',
+    """    <Preference
+        app:key="raven_add_environment"
+        app:title="@string/raven_add_environment_title"
+        app:summary="@string/raven_add_environment_summary"
+        app:persistent="false"/>
+
+    <Preference
+        app:key="about"
+""",
+)
+
+# Add labels for the settings form and the new-session environment picker.
+app_strings = root / "app/src/main/res/values/strings.xml"
+replace_once(
+    app_strings,
+    '    <string name="action_create_named_session_confirm">Create</string>\n',
+    """    <string name="action_create_named_session_confirm">Create</string>
+    <string name="raven_select_environment">Select environment</string>
+    <string name="raven_android_shell">Android system shell</string>
+    <string name="raven_add_environment_title">Add custom environment</string>
+    <string name="raven_add_environment_summary">Register a launcher for your proot or chroot environment</string>
+    <string name="raven_environment_name_hint">Environment name (for example, Debian)</string>
+    <string name="raven_environment_launcher_hint">Launcher path (for example, /data/local/start-debian.sh)</string>
+    <string name="raven_environment_name_required">Enter an environment name</string>
+    <string name="raven_environment_path_required">Enter an absolute launcher path</string>
+    <string name="raven_save_environment">Save</string>
+    <string name="raven_environment_saved">Environment saved</string>
+""",
+)
+
 # The Termux session adapter now exposes only Android's shell environment.
 shell_environment = root / "termux-shared/src/main/java/com/termux/shared/termux/shell/command/environment/TermuxShellEnvironment.java"
 shell_environment.write_text("""package com.termux.shared.termux.shell.command.environment;
