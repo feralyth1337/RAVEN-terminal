@@ -1,5 +1,7 @@
 # RAVEN Terminal
 
+[English version](README.en.md)
+
 [![Android build](https://github.com/feralyth1337/RAVEN-terminal/actions/workflows/android.yml/badge.svg?branch=main)](https://github.com/feralyth1337/RAVEN-terminal/actions/workflows/android.yml)
 [![Latest release](https://img.shields.io/github/v/release/feralyth1337/RAVEN-terminal)](https://github.com/feralyth1337/RAVEN-terminal/releases/latest)
 
